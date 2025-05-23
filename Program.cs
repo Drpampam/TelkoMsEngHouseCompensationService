@@ -22,6 +22,7 @@ builder.Services.AddHangfireServer();
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 1_000_000_000; // 1 GB
+   
 });
 
 var app = builder.Build();
