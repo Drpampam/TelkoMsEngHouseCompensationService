@@ -1,3 +1,5 @@
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Http.Features;
 using TLRProcessor.Jobs;
 using TLRProcessor.Repositories;
@@ -17,7 +19,7 @@ builder.Services.AddScoped<SmsTlrJob>();
 //    config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddHangfire(config =>
-    config.UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+    config.UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DataConnectionStrings")));
 
 
 builder.Services.AddHangfireServer();
@@ -38,4 +40,8 @@ app.UseSwaggerUI(c => {
 app.UseAuthorization();
 app.MapControllers();
 app.UseHangfireDashboard();
+
+// Ensure the Hangfire.AspNetCore package is installed in your project
+// You can install it via NuGet Package Manager or the following command:
+// dotnet add package Hangfire.AspNetCore
 app.Run();
