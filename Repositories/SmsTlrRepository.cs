@@ -1,4 +1,5 @@
 using Dapper;
+using Npgsql;
 using System.Data;
 using System.Data.SqlClient;
 using TLRProcessor.Models;
@@ -23,7 +24,7 @@ public class SmsTlrRepository : ISmsTlrRepository
         await conn.ExecuteAsync(sql, records);
     }
 
-    public async Task BulkInsertAsyncV2(IEnumerable<SmsTlrRecord> records)
+    public async Task BulkInsertAsyncV3(IEnumerable<SmsTlrRecord> records)
     {
         var dataTable = new DataTable();
         dataTable.Columns.Add("Id", typeof(string));
@@ -170,7 +171,98 @@ public class SmsTlrRepository : ISmsTlrRepository
         await bulkCopy.WriteToServerAsync(dataTable);
     }
 
-    public async Task BulkInsertAsyncV3(IEnumerable<SmsTlrRecord> records)
+    public async Task BulkInsertAsyncV2(IEnumerable<SmsTlrRecord> records)
+    {
+        var connectionString = _config.GetConnectionString("DefaultConnection");
+
+        await using var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
+
+        using var writer = conn.BeginBinaryImport(@"
+        COPY ""SmsTlrRecords"" (
+            ""Id"", ""From"", ""To"", ""Message"", ""Timestamp"", ""MessageType"", ""Status"",
+            ""ErrorCode"", ""AspName"", ""Application"", ""ScId"", ""ScConnection"", ""MessageId"",
+            ""ChargeMsisdn"", ""ChargeAmount"", ""ChargeMethod"", ""ChargeSequenceId"", ""MinCredit"",
+            ""ServiceName"", ""Reason"", ""Timestamp1"", ""Timestamp2"", ""Timestamp3"", ""SiProtocol"",
+            ""Ston"", ""Snpi"", ""Dton"", ""Dnpi"", ""DataCoding"", ""EsmClass"", ""TotalMessageNb"",
+            ""VlrId"", ""SiMessageId"", ""AdStatus"", ""CorrelationId"", ""MtFdaReturned"",
+            ""APartyBillingType"", ""BPartyBillingType"", ""DestinationImsi"", ""SourceImsi"",
+            ""DestinationMsc"", ""SourceMsc"", ""CurrentNode"", ""FinalNode"", ""UniqueId"",
+            ""ConnectionType"", ""Rtt"", ""PduType"", ""SourceSpName"", ""DestinationSpName"",
+            ""Description"", ""OriginatingIp"", ""TerminatingIp"", ""OriginatingInterface"",
+            ""OriginatingDomain"", ""DestinationInterface"", ""ContentType"", ""DestinationDomain"",
+            ""MessageState""
+        ) FROM STDIN (FORMAT BINARY)");
+
+        foreach (var r in records)
+        {
+            await writer.StartRowAsync();
+            writer.Write(r.Id ?? Guid.NewGuid().ToString(), NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.From, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.To, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.Message, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.Timestamp, NpgsqlTypes.NpgsqlDbType.Timestamp);
+            writer.Write(r.MessageType, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.Status, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.ErrorCode, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.AspName, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.Application, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.ScId, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.ScConnection, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.MessageId, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.ChargeMsisdn, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.ChargeAmount, NpgsqlTypes.NpgsqlDbType.Numeric);
+            writer.Write(r.ChargeMethod, NpgsqlTypes.NpgsqlDbType.Integer);
+            writer.Write(r.ChargeSequenceId, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.MinCredit, NpgsqlTypes.NpgsqlDbType.Bigint);
+            writer.Write(r.ServiceName, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.Reason, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.Timestamp1, NpgsqlTypes.NpgsqlDbType.Timestamp);
+            writer.Write(r.Timestamp2, NpgsqlTypes.NpgsqlDbType.Timestamp);
+            writer.Write(r.Timestamp3, NpgsqlTypes.NpgsqlDbType.Timestamp);
+            writer.Write(r.SiProtocol, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.Ston, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.Snpi, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.Dton, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.Dnpi, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.DataCoding, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.EsmClass, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.TotalMessageNb, NpgsqlTypes.NpgsqlDbType.Integer);
+            writer.Write(r.VlrId, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.SiMessageId, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.AdStatus, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.CorrelationId, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.MtFdaReturned, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.APartyBillingType, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.BPartyBillingType, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.DestinationImsi, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.SourceImsi, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.DestinationMsc, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.SourceMsc, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.CurrentNode, NpgsqlTypes.NpgsqlDbType.Integer);
+            writer.Write(r.FinalNode, NpgsqlTypes.NpgsqlDbType.Integer);
+            writer.Write(r.UniqueId, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.ConnectionType, NpgsqlTypes.NpgsqlDbType.Integer);
+            writer.Write(r.Rtt, NpgsqlTypes.NpgsqlDbType.Integer);
+            writer.Write(r.PduType, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.SourceSpName, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.DestinationSpName, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.Description, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.OriginatingIp, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.TerminatingIp, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.OriginatingInterface, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.OriginatingDomain, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.DestinationInterface, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.ContentType, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.DestinationDomain, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.MessageState, NpgsqlTypes.NpgsqlDbType.Integer);
+        }
+
+        await writer.CompleteAsync();
+    }
+
+
+    public async Task BulkInsertAsyncV4(IEnumerable<SmsTlrRecord> records)
     {
         var sql = @"
         INSERT INTO SmsTlrRecords

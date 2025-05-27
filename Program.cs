@@ -1,5 +1,3 @@
-using Hangfire;
-using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Http.Features;
 using TLRProcessor.Jobs;
 using TLRProcessor.Repositories;
@@ -15,8 +13,13 @@ builder.Services.AddScoped<ISmsTlrRepository, SmsTlrRepository>();
 builder.Services.AddScoped<LargeFileProcessor>();
 builder.Services.AddScoped<SmsTlrJob>();
 
+//builder.Services.AddHangfire(config =>
+//    config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddHangfire(config =>
-    config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+    config.UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 builder.Services.AddHangfireServer();
 
 builder.Services.Configure<FormOptions>(options =>
