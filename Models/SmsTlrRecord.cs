@@ -1,6 +1,8 @@
+using TLRProcessor.Common;
+
 namespace TLRProcessor.Models;
 
-public class SmsTlrRecord2
+public class SmsTlrRecord2 
 {
     public string From { get; set; }
     public string To { get; set; }
@@ -14,9 +16,9 @@ public class SmsTlrRecord2
     public string Application { get; set; }
 }
 
-public class SmsTlrRecord
+public class SmsTlrRecord : BaseEntity
 {
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string FileName { get; set; }
     public string From { get; set; }
     public string To { get; set; }
     public string Message { get; set; }

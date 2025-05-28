@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+using Npgsql;
 using TLRProcessor.Models;
 using TLRProcessor.Repositories;
 
@@ -7,16 +9,23 @@ public class LargeFileProcessor
 {
     private readonly ISmsTlrRepository _repo;
     private const int BatchSize = 1000;
+    private readonly IConfiguration _config;
 
-    public LargeFileProcessor(ISmsTlrRepository repo)
+
+    public LargeFileProcessor(ISmsTlrRepository repo, IConfiguration config)
     {
         _repo = repo;
+        _config = config;
     }
 
     public async Task ProcessAsync(string filePath)
     {
-        const int expectedFieldCount = 55; // total properties count (adjust if needed)
+        const int expectedFieldCount = 55; // update if fields increase
         var batch = new List<SmsTlrRecord>();
+
+
+        var fileName = Path.GetFileName(filePath);
+
 
         using var reader = new StreamReader(filePath);
         string? line;
@@ -29,6 +38,7 @@ public class LargeFileProcessor
 
             SmsTlrRecord record = new SmsTlrRecord
             {
+                FileName = fileName,
                 From = parts[1],
                 To = parts[2],
                 Message = parts[3],
@@ -114,6 +124,12 @@ public class LargeFileProcessor
 
         long ParseLong(string input) =>
             long.TryParse(input, out var val) ? val : 0L;
+    }
+
+    string ExtractUniqueNumberFromFileName(string fileName)
+    {
+        var match = Regex.Match(fileName, @"_(\d+)\.csv$");
+        return match.Success ? match.Groups[1].Value : throw new Exception("Unique number not found in filename.");
     }
 
 }

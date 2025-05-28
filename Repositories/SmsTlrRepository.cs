@@ -1,4 +1,4 @@
-using Dapper;
+﻿using Dapper;
 using Npgsql;
 using System.Data;
 using System.Data.SqlClient;
@@ -184,20 +184,20 @@ public class SmsTlrRepository : ISmsTlrRepository
         await conn.OpenAsync();
 
         using var writer = conn.BeginBinaryImport(@"
-        COPY ""SmsTlrRecords"" (
-            ""Id"", ""From"", ""To"", ""Message"", ""Timestamp"", ""MessageType"", ""Status"",
-            ""ErrorCode"", ""AspName"", ""Application"", ""ScId"", ""ScConnection"", ""MessageId"",
-            ""ChargeMsisdn"", ""ChargeAmount"", ""ChargeMethod"", ""ChargeSequenceId"", ""MinCredit"",
-            ""ServiceName"", ""Reason"", ""Timestamp1"", ""Timestamp2"", ""Timestamp3"", ""SiProtocol"",
-            ""Ston"", ""Snpi"", ""Dton"", ""Dnpi"", ""DataCoding"", ""EsmClass"", ""TotalMessageNb"",
-            ""VlrId"", ""SiMessageId"", ""AdStatus"", ""CorrelationId"", ""MtFdaReturned"",
-            ""APartyBillingType"", ""BPartyBillingType"", ""DestinationImsi"", ""SourceImsi"",
-            ""DestinationMsc"", ""SourceMsc"", ""CurrentNode"", ""FinalNode"", ""UniqueId"",
-            ""ConnectionType"", ""Rtt"", ""PduType"", ""SourceSpName"", ""DestinationSpName"",
-            ""Description"", ""OriginatingIp"", ""TerminatingIp"", ""OriginatingInterface"",
-            ""OriginatingDomain"", ""DestinationInterface"", ""ContentType"", ""DestinationDomain"",
-            ""MessageState""
-        ) FROM STDIN (FORMAT BINARY)");
+    COPY ""SmsTlrRecords"" (
+        ""Id"", ""From"", ""To"", ""Message"", ""Timestamp"", ""MessageType"", ""Status"",
+        ""ErrorCode"", ""AspName"", ""Application"", ""ScId"", ""ScConnection"", ""MessageId"",
+        ""ChargeMsisdn"", ""ChargeAmount"", ""ChargeMethod"", ""ChargeSequenceId"", ""MinCredit"",
+        ""ServiceName"", ""Reason"", ""Timestamp1"", ""Timestamp2"", ""Timestamp3"", ""SiProtocol"",
+        ""Ston"", ""Snpi"", ""Dton"", ""Dnpi"", ""DataCoding"", ""EsmClass"", ""TotalMessageNb"",
+        ""VlrId"", ""SiMessageId"", ""AdStatus"", ""CorrelationId"", ""MtFdaReturned"",
+        ""APartyBillingType"", ""BPartyBillingType"", ""DestinationImsi"", ""SourceImsi"",
+        ""DestinationMsc"", ""SourceMsc"", ""CurrentNode"", ""FinalNode"", ""UniqueId"",
+        ""ConnectionType"", ""Rtt"", ""PduType"", ""SourceSpName"", ""DestinationSpName"",
+        ""Description"", ""OriginatingIp"", ""TerminatingIp"", ""OriginatingInterface"",
+        ""OriginatingDomain"", ""DestinationInterface"", ""ContentType"", ""DestinationDomain"",
+        ""MessageState"", ""CreatedAt"", ""LastUpdatedAt"", ""CreatedBy"", ""LastUpdatedBy"", ""FileName""
+    ) FROM STDIN (FORMAT BINARY)");
 
         foreach (var r in records)
         {
@@ -261,6 +261,13 @@ public class SmsTlrRepository : ISmsTlrRepository
             writer.Write(r.ContentType, NpgsqlTypes.NpgsqlDbType.Text);
             writer.Write(r.DestinationDomain, NpgsqlTypes.NpgsqlDbType.Text);
             writer.Write(r.MessageState, NpgsqlTypes.NpgsqlDbType.Integer);
+
+            // ✅ New Fields
+            writer.Write(r.CreatedAt, NpgsqlTypes.NpgsqlDbType.Timestamp);
+            writer.Write(r.LastUpdatedAt, NpgsqlTypes.NpgsqlDbType.Timestamp);
+            writer.Write(r.CreatedBy, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.LastUpdatedBy, NpgsqlTypes.NpgsqlDbType.Text);
+            writer.Write(r.FileName, NpgsqlTypes.NpgsqlDbType.Text);
         }
 
         await writer.CompleteAsync();
