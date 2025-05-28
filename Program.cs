@@ -12,7 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ISmsTlrRepository, SmsTlrRepository>();
-builder.Services.AddScoped<LargeFileProcessor>();
+builder.Services.AddScoped<ILargeFileProcessor, LargeFileProcessor>();
 builder.Services.AddScoped<SmsTlrJob>();
 
 //builder.Services.AddHangfire(config =>

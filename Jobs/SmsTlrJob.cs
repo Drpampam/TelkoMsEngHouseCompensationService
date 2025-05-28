@@ -4,9 +4,9 @@ namespace TLRProcessor.Jobs;
 
 public class SmsTlrJob
 {
-    private readonly LargeFileProcessor _processor;
+    private readonly ILargeFileProcessor _processor;
 
-    public SmsTlrJob(LargeFileProcessor processor)
+    public SmsTlrJob(ILargeFileProcessor processor)
     {
         _processor = processor;
     }

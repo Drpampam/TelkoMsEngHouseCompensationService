@@ -2,6 +2,7 @@
 using Npgsql;
 using System.Data;
 using System.Data.SqlClient;
+using TLRProcessor.DTOs;
 using TLRProcessor.Models;
 
 namespace TLRProcessor.Repositories;
@@ -277,6 +278,52 @@ public class SmsTlrRepository : ISmsTlrRepository
     {
         throw new NotImplementedException();
     }
+
+    public async Task<(List<SmsTlrRecord> Records, int TotalCount)> GetSmsTlrRecordsAsync(GetReporting? filter)
+    {
+        filter ??= new GetReporting();
+
+        int pageNumber = filter.PageNumber <= 0 ? 1 : filter.PageNumber;
+        int pageSize = filter.PageSize <= 0 ? 20 : filter.PageSize;
+        int offset = (pageNumber - 1) * pageSize;
+
+        DateTime? startDate = DateTime.TryParse(filter.StartDate, out var sd) ? sd : null;
+        DateTime? endDate = DateTime.TryParse(filter.EndDate, out var ed) ? ed : null;
+        string? status = string.IsNullOrWhiteSpace(filter.Status) ? null : filter.Status;
+
+        var sql = @"
+        SELECT * FROM ""SmsTlrRecords""
+        WHERE (@StartDate IS NULL OR ""Timestamp"" >= @StartDate)
+          AND (@EndDate IS NULL OR ""Timestamp"" <= @EndDate)
+          AND (@Status IS NULL OR ""Status"" = @Status)
+        ORDER BY ""Timestamp"" DESC
+        OFFSET @Offset
+        LIMIT @Limit;
+
+        SELECT COUNT(*) FROM ""SmsTlrRecords""
+        WHERE (@StartDate IS NULL OR ""Timestamp"" >= @StartDate)
+          AND (@EndDate IS NULL OR ""Timestamp"" <= @EndDate)
+          AND (@Status IS NULL OR ""Status"" = @Status);
+    ";
+
+        var parameters = new DynamicParameters();
+        parameters.Add("StartDate", startDate, DbType.DateTime);
+        parameters.Add("EndDate", endDate, DbType.DateTime);
+        parameters.Add("Status", status, DbType.String);
+        parameters.Add("Offset", offset, DbType.Int32);
+        parameters.Add("Limit", pageSize, DbType.Int32);
+
+        await using var connection = new NpgsqlConnection(_config.GetConnectionString("DataConnectionStrings"));
+        await connection.OpenAsync();
+
+        using var multi = await connection.QueryMultipleAsync(sql, parameters);
+
+        var records = (await multi.ReadAsync<SmsTlrRecord>()).ToList();
+        var totalCount = await multi.ReadFirstAsync<int>();
+
+        return (records, totalCount);
+    }
+
 
 
     //public async Task BulkInsertAsyncV4(IEnumerable<SmsTlrRecord> records)
