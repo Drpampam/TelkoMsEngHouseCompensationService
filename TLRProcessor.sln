@@ -1,9 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TLRProcessor", "TLRProcessor.csproj", "{BD4E6B06-313C-4F49-83F5-BC43E511ABB6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{5CB91FB7-6C6A-46BF-A9A8-EF6C6BEC8C01}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "winservice", "winservice", "{5870D4E8-5C34-46DB-8F92-B134D64E9E76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TLRBillingReportWinService", "..\TLRBillingReportWinService\TLRBillingReportWinService.csproj", "{5387DC62-9E80-4A41-9CDF-EE5FF7C8B8B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +23,18 @@ Global
 		{BD4E6B06-313C-4F49-83F5-BC43E511ABB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD4E6B06-313C-4F49-83F5-BC43E511ABB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD4E6B06-313C-4F49-83F5-BC43E511ABB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5387DC62-9E80-4A41-9CDF-EE5FF7C8B8B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5387DC62-9E80-4A41-9CDF-EE5FF7C8B8B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5387DC62-9E80-4A41-9CDF-EE5FF7C8B8B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5387DC62-9E80-4A41-9CDF-EE5FF7C8B8B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BD4E6B06-313C-4F49-83F5-BC43E511ABB6} = {5CB91FB7-6C6A-46BF-A9A8-EF6C6BEC8C01}
+		{5CB91FB7-6C6A-46BF-A9A8-EF6C6BEC8C01} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{5870D4E8-5C34-46DB-8F92-B134D64E9E76} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{5387DC62-9E80-4A41-9CDF-EE5FF7C8B8B7} = {5870D4E8-5C34-46DB-8F92-B134D64E9E76}
 	EndGlobalSection
 EndGlobal
